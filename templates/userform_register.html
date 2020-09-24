@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+.form-group {
+  max-width: 200px;
+  margin: auto;
+}
+</style>
+</head>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+
+<form method=post  onsubmit="return Validate()">
+  <div class="form-group col-s-5 col-lg-3">
+    <label for="exampleInputEmail1">Email address</label>
+    <input type="email" name= "email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" required>
+    <small id="emailHelp" class="form-text text-muted"></small>
+  </div>
+  <div class="form-group col-s-5 col-lg-3">
+    <label for="password">Password</label>
+    <input type="password" name="password" class="form-control" id="password" placeholder="Password" required>
+  </div>
+    <div class="form-group col-s-5 col-lg-3">
+    <label for="passwordconf">Re-Type Password</label>
+    <input type="password" name="passwordconf" class="form-control" id="passwordconf" placeholder="Password" required>
+  </div>
+  <div class="form-group form-check">
+<!--     <input type="checkbox" class="form-check-input" id="exampleCheck1">
+    <label class="form-check-label" for="exampleCheck1">Check me out</label> -->
+  </div>
+  <div class="form-group form-check">
+  <button type="submit" class="btn btn-primary">Register</button>
+  </div>
+</form>
+
+<script>
+function validate()
+{
+    password = document.getelementbyid('password').value();
+    passwordconf = document.getelementbyid('passwordconf').value();
+    if(passwordconf=="") {
+    alert("Confirm password!");
+    return false;
+    } else if(password != passwordconf){
+    alert("Confirm Password doesn't match");
+    return false;
+    }
+}
+</script>

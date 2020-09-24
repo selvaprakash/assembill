@@ -1,0 +1,61 @@
+import pandas as pd
+import io
+import os
+
+
+from google.cloud import vision
+from google.cloud.vision import types
+
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"]='/home/selvaprakash/BillD/BillDog-018b2ee1875d.json'
+image_path='/home/selvaprakash/BillD/Latta.jpg'
+csv_file="/home/selvaprakash/BillD/CSV/Latta_enh2.csv"
+
+
+
+def detect_text(path,csv_file):
+    client = vision.ImageAnnotatorClient()
+
+    with io.open(path, 'rb') as image_file:
+        content = image_file.read()
+
+    image = types.Image(content=content)
+    df = pd.DataFrame(columns=["Word_Count","Word", "X1", "Y1", 'X2', 'Y2'])
+    print (df.columns)
+
+    response = client.text_detection(image=image)
+    texts = response.text_annotations
+    #print('Texts:')
+    #print texts
+    ind=0
+    for text,i in zip(texts,range(0,len(texts))):
+
+    	# Send the same to Data Frame to be sent for Processing
+        df=df.append({'Word_Count':i,'Word':(text.description).encode("ascii", "ignore")  ,'X2':0,'Y2':0,"X1":format(text.bounding_poly.vertices[0].x),"Y1":format(text.bounding_poly.vertices[0].y)},ignore_index=True)
+        df=df.append({'Word_Count':i,'Word':(text.description).encode("ascii", "ignore"),'X1':0,'Y1':0,"X2":format(text.bounding_poly.vertices[1].x),"Y2":format(text.bounding_poly.vertices[1].y)},ignore_index=True)
+			#df=df.append({'Word':(text.description),"X":format(text.bounding_poly.vertices[2].x),"Y":format(text.bounding_poly.vertices[2].y)},ignore_index=True)
+    	#df=df.append({'Word':(text.description),"X":format(text.bounding_poly.vertices[3].x),"Y":format(text.bounding_poly.vertices[3].y)},ignore_index=True)
+
+    df=df.reset_index()
+    #print (df.columns)
+    #df=df.set_index('index')
+    #df=df.reset_index(drop=True)
+    df=df.loc[df['Word_Count']>0]
+    df1= df.groupby(['Word_Count','Word']).max()
+    #df.to_csv(csv_file)
+    #df1= (df.groupby(df['Word_Count']).max())
+    #print (df.columns)
+    #print (df1)
+
+    df1.to_csv(csv_file)
+    #print (df1)
+    return df1
+
+
+def main():
+    df_all = detect_text(image_path,csv_file)
+    #print df_all
+
+
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,128 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="./static/styles.css">
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-42708644-2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-42708644-2');
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+	background:#00BCD4;
+	background-size: cover;
+	font-family: 'Open Sans', sans-serif;
+	background-attachment: fixed;
+    background-position: center;
+}
+h1,h2,h3,h4,h5,h6{
+	font-family: 'Montserrat', sans-serif;
+
+}
+h1{
+	color:#fff;
+	font-size:45px;
+	text-align:center;
+	margin-top:50px;
+}
+.agile-its{
+	width:35%;
+	margin:50px auto;
+	background:#fff;
+
+}
+h2{
+	color:#fff;
+	background: #f3c500;
+	padding:10px 0;
+	text-align:center;
+	font-size:20px;
+}
+</style>
+<title>Scan Bills, Convert Bills to Excel, Analyze Bills</title>
+</head>
+<body>
+
+<!--
+    <div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = 'https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.0&appId=2009152492734887&autoLogAppEvents=1';
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+-->
+
+    <h1 style="font-family:Trebuchet MS;"><center>Assembill.com</center></h1>
+    <h2 style="font-family:Trebuchet MS;"><center>Scan, Excelize & Analyze your Shopping Bills </h2>
+    <center><form method=post enctype=multipart/form-data>
+      <p>
+	<p><button id="upload_button">Capture / Browse Bill Image</button></p>
+	<p><input type="text" id="emailid" name="emailid" placeholder='Email ID to send to'></input>
+
+
+    <input id="file-input" type="file" name=file >
+    <script>
+		var button = document.getElementById('upload_button');
+		var input  = document.getElementById('file-input');
+
+		// Making input invisible, but leaving shown fo graceful degradation
+		input.style.display = 'none';
+		button.style.display = 'initial';
+
+		button.addEventListener('click', function (e) {
+		    e.preventDefault();
+
+		    input.click();
+		    button.style.background="yellow";
+		});
+
+		input.addEventListener('change', function ()
+		{
+		   button.innerText = this.value.replace("C:\\fakepath\\","");
+		}
+		);
+	</script>
+	</div>
+	<br>
+	<br>
+         <input type=submit value=Upload >
+    <h2></h2>
+    	<img src="./static/transform_blue.png" alt="Transform" />
+</center>
+<p>
+
+<!--
+    <div class="fb-login-button" data-max-rows="1" data-size="medium" data-button-type="continue_with" data-show-faces="false" data-auto-logout-link="false" data-use-continue-as="false"></div>
+
+<div
+  class="fb-like"
+  data-share="true"
+  data-width="450"
+  data-show-faces="true">
+</div>
+-->
+<b>Instructions:</b>
+<br>
+<ol>
+  <li>The Bill image should be similar to that of the Sample provided above</li>
+  <li>Unfold & Straighten-up your Bill</li>
+  <li>Place the Bill on a Flat Surface</li>
+  <li>Use the above Camera Icon to Capture the Image of the Bill.</li>
+  <li>Make sure that the Bill's borders are parallel to the Phone's Frame Border</li>
+  <li>Make sure that the Image has only the Bill and no Background / minimal Background</li>
+  <li>The Characters in the Bill should be clearly visible to the naked eye to be visible for the Program's Eyes</li>
+  <li><b>Only Bills with single line per Item and clear gap between the various fields will provide the excel output.</b>
+</ol>
+<a href="/static/Latta2.jpg">Sample Image</a>
+<a href="mailto:assembill.contact@gmail.com?" target="_top" text-align="right">How did it Work?</a>
+</p>
+</body>
+</html>
