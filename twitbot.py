@@ -17,7 +17,7 @@ print('this is my twitter bot', flush=True)
 
 auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
 auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
-api = tweepy.API(auth)
+api = tweepy.API(auth, wait_on_rate_limit=True)
 
 FILE_NAME = '/home/selvaprakash/BillD/last_seen_id.txt'
 
@@ -48,14 +48,21 @@ def reply_to_tweets():
     # NOTE: We need to use tweet_mode='extended' below to show
     # all full tweets (with full_text). Without it, long tweets
     # would be cut off.
+    print ('last seen id',last_seen_id)
     mentions = api.mentions_timeline(
                         last_seen_id,
                         tweet_mode='extended')
     for mention in reversed(mentions):
+        # print (mention)
+        # break
         print(str(mention.id) + ' - ' + mention.full_text, flush=True)
-        last_seen_id = mention.id
+        if (mentions[0].user.id == 1304013383591583744):
+            last_seen_id = mention.id
+            store_last_seen_id(last_seen_id, FILE_NAME)
+            break
 
-        if mentions[0].entities['media'][0]['media_url_https']:
+
+        if ('media' in mentions[0].entities) and ('copy this' in mention.full_text) and mentions[0]:
             print('found Image!',mentions[0].entities['media'][0]['media_url_https'], flush=True)
             image = requests.get(mentions[0].entities['media'][0]['media_url_https'], stream=True)
             with open(str(mention.id)+'.png', 'wb') as f:
@@ -69,9 +76,54 @@ def reply_to_tweets():
             text_file.write(csv.text)
             text_file.close()
             print('responding back...', flush=True)
-            api.update_status('@' + mention.user.screen_name +' '+
-                    csv.text[0:260], mention.id)
+            op_text = csv.text
             store_last_seen_id(last_seen_id, FILE_NAME)
+            continue
+
+        elif 'copy that' in mention.full_text and mentions[0].in_reply_to_status_id :
+            parent_tweet_id=mentions[0].in_reply_to_status_id
+            print (parent_tweet_id)
+            parent_tweet = api.get_status(parent_tweet_id)
+            print (type(parent_tweet.entities))
+            if  ('media' in parent_tweet.entities):
+                print ('Found Image in Parent Tweet')
+                image = requests.get(parent_tweet.entities['media'][0]['media_url_https'], stream=True)
+
+                print(parent_tweet.entities['media'][0]['media_url_https'])
+
+                with open(str(parent_tweet.id)+'.png', 'wb') as f:
+                    shutil.copyfileobj(image.raw, f)
+
+                img_file = { 'file': open(str(parent_tweet.id)+'.png','rb')}
+                url ='https://www.assembill.com/api'
+                csv = requests.request("POST",url,files = img_file)
+                print (csv.text)
+                op_text = csv.text
+                if op_text == '':
+                    op_text = "Either I didn't find any text or it is in Kiliki which I can't read (yet)"
+                    continue
+            else:
+                op_text = 'No Valid Image Found'
+                continue
+
+        else:
+            op_text = 'Mention \'@CopyTextApp copy that\' in your reply to the tweet with the image'
+            print (op_text)
+
+        print ('Replying to Metion ID:',mention.id)
+        print (op_text)
+        try:
+            api.update_status('@' + mention.user.screen_name +' '+
+                op_text[0:279], mention.id)
+            print ('Replied')
+            last_seen_id = mention.id
+        except:
+            continue
+
+    store_last_seen_id(last_seen_id, FILE_NAME)
+
+
+
 
 def sample():
     img_url = 'https://pbs.twimg.com/media/EinO8DTU8AIyLYm.jpg'
