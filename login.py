@@ -3,10 +3,10 @@ import mysql.connector
 # import sshtunnel
 import hashlib
 from datetime import date
-
+from flask import flash
 
 def check_pwd(username,pwd):
-
+        #cnx = mysql.connector.connect(user='root', password='selvamys1', host='localhost', database='BILLD')
         cnx = mysql.connector.connect(user='selvaprakash',password='selvamysqladmin1', host='selvaprakash.mysql.pythonanywhere-services.com', database='selvaprakash$BILLD')
         # cnx = mysql.connector.connect(
         #     user='selvaprakash', password='selvamysqladmin1',
@@ -43,6 +43,7 @@ def check_pwd(username,pwd):
                     return 'notgood'
 
             else:
+                flash ("Email id or Password is not Valid")
                 print ('notgood')
                 return 'notgood'
 

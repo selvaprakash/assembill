@@ -17,6 +17,7 @@ from topdf import topdf
 #import xlsxwriter
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"]='/home/selvaprakash/BillD/BillDog-018b2ee1875d.json'
+#os.environ["GOOGLE_APPLICATION_CREDENTIALS"]='/mnt/c/d/BillD/BillDog-018b2ee1875d.json'
 src_image='/home/selvaprakash/BillD/BigBill.jpg' #IMG_20180314_135618731.jpg #IMG_20180603_143723969.jpg
 csv_path = '/home/selvaprakash/BillD/CSV/'
 excel_path='/home/selvaprakash/BillD/Excel/'

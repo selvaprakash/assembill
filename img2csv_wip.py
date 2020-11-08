@@ -16,14 +16,13 @@ from google.cloud import storage
 #client = storage.Client()
 #bucket = client.get_bucket('billdata')
 #blob = bucket.get_blob('remote/path/to/file.txt')
-
+proc_img_twit="/home/selvaprakash/BillD/Pics/"
 #image_file= arg1
+USER_FOLDER = '/home/selvaprakash/BillD/static/users/'
+#USER_FOLDER = '/mnt/c/d/BillD/static/users/'
 
 csv_folder= '/BillD/users/admin/CSV'
 template_folder = '/BillD/users/image_templates'
-proc_img="/home/selvaprakash/BillD/Pics/proc.png"
-
-
 
 
 def detect_text_uri(path): # User Google API to detect Text in the Image
@@ -50,6 +49,7 @@ def detect_text_uri(path): # User Google API to detect Text in the Image
     	 df=df.append({'Word_Count':i,'Word':(text.description).strip(),'X1':0,'Y1':0,"X2":(text.bounding_poly.vertices[1].x),"Y2":(text.bounding_poly.vertices[1].y)},ignore_index=True)
     	 print ((text.description).encode('utf-8').strip(),format(text.bounding_poly.vertices[0].y))
 
+
     print ('y1',df['Y1'],df['X1'])
     print (df)
     print (df.groupby(['Word_Count','Word'])['X1','X2','Y1','Y2'].max())
@@ -59,15 +59,15 @@ def detect_text_uri(path): # User Google API to detect Text in the Image
     print ('df1', df1)
     print ("Y1", format(text.bounding_poly.vertices[0].y))
     #df1.to_csv('/home/selva/PycharmProjects/BillDog/CSV/df.csv',sep='|')
-    return df1
+    return df1.reset_index()
 
-def process_text(df1,min_x,max_x,min_y,max_y,df_coords,df_fields):
+def process_text(df,df_coords,df_fields,user,inp_file):
 
     #df = pd.DataFrame.from_csv("D:\Others\BillDog\Bill_contents.csv", index_col=None)
-    df=df1
-    #print 'df',df
+    print ('df',df.columns)
     # if df_coords.empty:
     #     df_coords = pd.DataFrame(['Column1',0,0,5000,5000], name = ['Field','Start_X','Start_Y','End_X', 'End_Y'])
+
 
     ####
     dfy2 = pd.to_numeric(df['Y1'])
@@ -81,9 +81,9 @@ def process_text(df1,min_x,max_x,min_y,max_y,df_coords,df_fields):
     df['Y1'] = dfy2['Y1']
     ####
 
-    df = df.loc[(df['Y1']).astype(int) > min_y]
-
-    df = df.loc[(df['Y1']).astype(int) < max_y].reset_index()
+    # df = df.loc[(df['Y1']).astype(int) > min_y]
+    #
+    # df = df.loc[(df['Y1']).astype(int) < max_y].reset_index()
     #print df
     df = df[['Word', 'X1', 'Y1', 'X2', 'Y2']]
     df = df.reset_index().drop(labels='index',axis=1)
@@ -93,7 +93,7 @@ def process_text(df1,min_x,max_x,min_y,max_y,df_coords,df_fields):
     df['X1']=pd.to_numeric(df['X1'])
     df['X2'] = pd.to_numeric(df['X2'])
     int_array={}
-    int_df=pd.DataFrame( columns=["Word",  'Y1'])
+    int_df=pd.DataFrame( )
     #print 'df ', df
     # df_c = df.groupby('Y1')['Word'].apply(lambda x: "{%s}" % ' '.join(x))
     # print ('df_c', df_c)
@@ -106,9 +106,12 @@ def process_text(df1,min_x,max_x,min_y,max_y,df_coords,df_fields):
             int_df1 = (df_filter[['Word','Y1']])
             int_df1 = int_df1.groupby(['Y1'])['Word'].apply(' '.join).reset_index()
             print ('int df grouped', int_df)
-            int_df = int_df.merge(int_df1, how='outer', on="Y1", suffixes=('_l_'+str(i),'_r_'+str(i)))
+            #int_df = int_df.merge(int_df1, how='outer', on="Y1", suffixes=('_l_'+str(i),'_r_'+str(i)))
 
-            #int_df = int_df.drop('Word_x', axis='columns')
+
+            new_words = int_df1["Word"]
+            print ('New Words', new_words)
+            int_df = pd.concat([int_df, new_words], axis=1)
 
             print ('int df2', int_df)
         #df_c = df_c.groupby('Y')['Word'].apply(lambda x: "{%s}" % ' '.join(x))
@@ -117,47 +120,53 @@ def process_text(df1,min_x,max_x,min_y,max_y,df_coords,df_fields):
     print ('int_array final', int_df)
 
     int_df = int_df.reset_index()
-    int_df_print = int_df.drop(['Word_l_0','Y1','index'],axis='columns')
+    int_df_print = int_df.drop(['index'],axis='columns')
+    #int_df_print = int_df.drop(['Word_l_0','Y1','index'],axis='columns')
+    print ('Current Columns',int_df_print.columns)
     int_df_print.columns = df_coords['Field']
 
     print ('Printed DF', int_df.reset_index())
     print ('df print',int_df_print)
 
-    pd.DataFrame.to_csv(int_df_print,'/home/selvaprakash/BillD/CSV/img2csv.csv',index = False)
+    pd.DataFrame.to_csv(int_df_print,USER_FOLDER+user+'/CSV/results/'+os.path.basename(inp_file)+'.csv',index = False)
 
     print('Done! Done! Done!')
 
 
-def process_image(inp_img):
+def process_image(inp_img,user):
     inp_img = cv2.imread(inp_img)
     img = cv2.cvtColor(inp_img, cv2.COLOR_BGR2GRAY)
+
+    proc_img = USER_FOLDER+user+'/images/processed/proc.png'
+
     cv2.imwrite(proc_img,img)
+    return proc_img
 
-
-def main(df_coords1,inp_file):
+def main(inp_file,user,template_file):
     df = pd.DataFrame( columns=["Word","X","Y"])
     #y_start_end=find_bound_coor('/home/selva/BillDog/ExcelBill.png')
-
-    process_image(inp_file)
+    print ('inp_file',inp_file)
+    proc_img = process_image(inp_file,user)
     df1=detect_text_uri(proc_img)
 
-
-    df_coords=pd.read_csv('/home/selvaprakash/BillD/CSV/templates/img_template.csv')
+    #df.to_csv(pd.DataFrame.to_csv(df, USER_FOLDER + user + '/' + 'CSV/templates/' + template_name + '.csv'))
+    df_coords=pd.read_csv(template_file)
     print ('target ', df_coords[['Field','Start_X','End_X','Start_Y']])
 
-    min_x=df_coords['Start_X'].min()
-    min_y = df_coords['Start_Y'].min()
-    max_x= df_coords['End_X'].max()
-    max_y= df_coords['End_Y'].max()
-    print ('min max coords', min_x,max_x,min_y,max_y)
+    # min_x=df_coords['Start_X'].min()
+    # min_y = df_coords['Start_Y'].min()
+    # max_x= df_coords['End_X'].max()
+    # max_y= df_coords['End_Y'].max()
+    # print ('min max coords', min_x,max_x,min_y,max_y)
     #df_coords = (df_coords.loc[(df_coords.Field != 'maxxy')])
-    process_text(df1,min_x,max_x,min_y,max_y,df_coords[['Field','Start_X','End_X','Start_Y','End_Y']],df_coords.iloc[:,0])
+    print ('df1',df1)
+    process_text(df1,df_coords[['Field','Start_X','End_X','Start_Y','End_Y']],df_coords.iloc[:,0],user,inp_file)
 
 def detect_text_api(path): # User Google API to detect Text in the Image
     """Detects text in the file located in Google Cloud Storage or on the Web.
     """
     #df = pd.DataFrame(columns= ["Word","X","Y"])
-    df = pd.DataFrame(columns= ["Word_Count","Word","X1","Y1","X2","Y2"])
+    #df = pd.DataFrame(columns= ["Word_Count","Word","X1","Y1","X2","Y2"])
     client = vision.ImageAnnotatorClient()
 
     with io.open(path, 'rb') as image_file:
@@ -168,17 +177,45 @@ def detect_text_api(path): # User Google API to detect Text in the Image
     response = client.text_detection(image=image)
     texts = response.text_annotations
     print('Texts:')
-    print (texts)
-    ind=0
     print (texts[0])
     return(texts[0].description)
 
-def main_twit_api(df_coords1,inp_file):
+
+def process_image_twit(inp_img):
+    proc_img = inp_img+'_twitproc.png'
+    inp_img_obj = cv2.imread(inp_img)
+    #filename = os.path.basename(inp_img)
+    img = cv2.cvtColor(inp_img_obj, cv2.COLOR_BGR2GRAY)
+    cv2.imwrite(proc_img,img)
+    return (proc_img)
+
+def main_api(df_coords,inp_file):
     df = pd.DataFrame( columns=["Word","X","Y"])
     #y_start_end=find_bound_coor('/home/selva/BillDog/ExcelBill.png')
+    print ('inp_file',inp_file)
+    proc_img = process_image(inp_file,'apiuser')
+    df1=detect_text_uri(proc_img)
 
-    process_image(inp_file)
-    df1=detect_text_api(proc_img)
+    #df.to_csv(pd.DataFrame.to_csv(df, USER_FOLDER + user + '/' + 'CSV/templates/' + template_name + '.csv'))
+    #df_coords=pd.read_csv(template_file)
+    print ('target ', df_coords[['Field','Start_X','End_X','Start_Y']])
+
+    # min_x=df_coords['Start_X'].min()
+    # min_y = df_coords['Start_Y'].min()
+    # max_x= df_coords['End_X'].max()
+    # max_y= df_coords['End_Y'].max()
+    # print ('min max coords', min_x,max_x,min_y,max_y)
+    #df_coords = (df_coords.loc[(df_coords.Field != 'maxxy')])
+    print ('df1',df1)
+    process_text(df1,df_coords[['Field','Start_X','End_X','Start_Y','End_Y']],df_coords.iloc[:,0],'apiuser',inp_file)
+
+def main_twit_api(inp_file):
+    #df = pd.DataFrame( columns=["Word","X","Y"])
+    #y_start_end=find_bound_coor('/home/selva/BillDog/ExcelBill.png')
+
+    #proc_img = process_image_twit(inp_file)
+    #print(proc_img)
+    df1=detect_text_api(inp_file)
     return df1
 
 

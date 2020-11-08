@@ -9,18 +9,18 @@
 <img  ismap alt="My Image"  id='backImg'  />
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
         <script type="text/javascript">
-          var upload_loc = '/static/backImg/'
+
+          var upload_loc = 'static/users/'
           var vars = {};
           var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
               vars[key] = value;
           });
           var up_file=(vars['up_file'])
+          var user = (vars['user'])
           console.log(upload_loc + up_file)
-          document.getElementById('backImg').src= upload_loc + up_file
+          image_file = '/static/users/' + user+ '/images/'+up_file
+          document.getElementById('backImg').src =  image_file
 
-          //let photo = document.getElementById("file-input").files[0];
-        //document.body.style.backgroundImage = "url(up_file)";
-        //document.getElementById("backImg").src = photo;
 
         </script>
 
@@ -200,25 +200,57 @@
 
   <form  action="" method="post" class="form-container">
     <h2>Set Co-Ordinates</h2>
- <p></p><input type="text" id="scrName" name="scrName" value="Screen1">
- <button type="button" class="btn rotate" onclick="clickCounter()">Rotate Image</button>
+ <p>Template Name&nbsp&nbsp&nbsp&nbsp<input type="text" id="tmplName" name="tmplName" value="Screen1"></p>
  <button type="button" class="btn rotate" id="zoom-in">zoom in</button>
 <button type="button" class="btn rotate" id="zoom-out">zoom out</button>
-
+ <button type="button" class="btn rotate" onclick="clickCounter()">Rotate Image</button>
+<select class="mdb-select md-form" id="tmpl_option" name='tmpl_option'>
+    <option disabled selected>Template List</option>
+	</select>
 
 <p> Number of Columns: &nbsp&nbsp&nbsp   <input type="text" id="member" name="member" value="1"></p>
 <a href="#" id="filldetails" onclick="addFields()">Enter Column Details</a>
       <div id="form-container"></div>
 
     <button type="submit" name="action" value="csv" class="btn">Download CSV</button>
-    <button type="submit" name="action" value="clip" class="btn clip">Show in Page</button>
+    <button type="submit" name="action" value="savetmpl" class="btn clip">Save Template</button>
     <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
+
 
   </form>
 </div>
 
 <script>
 document.getElementById("member").focus();
+
+function getUrlParameter(sParam) {
+    var sPageURL = decodeURIComponent(window.location.search.substring(1));
+    console.log(sPageURL)
+    var array =[]
+    var sURLVariables = sPageURL.split('&');
+    for (var i = 0; i < sURLVariables.length; i++) {
+        var sParameterName = sURLVariables[i].split('=');
+        if (sParameterName[0] == sParam) {
+            array.push(sParameterName[1]);
+        }
+    }
+    return(array);
+}
+
+     tmpl_list = getUrlParameter('tmpl_list');
+        console.log (tmpl_list)
+          //let photo = document.getElementById("file-input").files[0];
+        //document.body.style.backgroundImage = "url(up_file)";
+
+         for (var ndx = 0; ndx < tmpl_list.length; ndx++)
+         {
+    var tmpl_option = document.getElementById("tmpl_option")
+    var option = document.createElement("option");
+    option.text = tmpl_list[ndx].replace('.csv','');
+    option.value = tmpl_list[ndx];
+    console.log(option.text)
+    tmpl_option.add(option);
+                }
 
 function clickCounter() {
   if (typeof(Storage) !== "undefined") {

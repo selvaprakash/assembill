@@ -11,6 +11,28 @@
 </head>
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 
+{% block content %}
+<div class="container">
+    {% for message in get_flashed_messages() %}
+    <div class="alert alert-warning">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{ message }}
+    </div>
+    {% endfor %}
+
+    {% block page_content %}{% endblock %}
+</div>
+{% endblock %}
+<p></p>
+<p></p>
+<div style="text-align: center;">
+
+
+  <img src="./static/images/logos/assembill_min100.png" height:"100" width:"250" alt="logo" >
+
+
+</div>
+<p></p>
 <form method=post  onsubmit="return Validate()">
   <div class="form-group col-s-5 col-lg-3">
     <label for="exampleInputEmail1">Email address</label>
@@ -22,7 +44,7 @@
     <input type="password" name="password" class="form-control" id="password" placeholder="Password" required>
   </div>
     <div class="form-group col-s-5 col-lg-3">
-    <label for="passwordconf">Re-Type Password</label>
+    <label for="passwordconf">Confirm Password</label>
     <input type="password" name="passwordconf" class="form-control" id="passwordconf" placeholder="Password" required>
   </div>
   <div class="form-group form-check">

@@ -7,10 +7,13 @@ import os
 from flask import flash
 
 salt =b'Hw\x1aPz\xf7\x1d\xd1\x15\xea\xd8&\xcc\x11\x1du\xca990=\x85\xc1T\xee\x831>\x15@\xfad'
+USER_HOME = '/home/selvaprakash/BillD/static/users/'
+#USER_HOME = '/mnt/c/d/BILLD/static/users/'
 
 def create_user(username,pwd):
-
-        cnx = mysql.connector.connect(user='selvaprakash',password='selvamysqladmin1', host='selvaprakash.mysql.pythonanywhere-services.com', database='selvaprakash$BILLD')
+        cnx = mysql.connector.connect(user='selvaprakash', password='selvamysqladmin1',
+                                  host='selvaprakash.mysql.pythonanywhere-services.com', database='selvaprakash$BILLD')
+        #cnx = mysql.connector.connect(user='root',password='selvamys1', host='localhost', database='BILLD')
         print('connected')
         cursor = cnx.cursor()
 
@@ -36,6 +39,7 @@ def create_user(username,pwd):
                 break
         sel_query = ("SELECT MAX(id) from USERS")
         cursor.execute(sel_query)
+        # new_id=0
         for cont in cursor:
             new_id = cont[0]+1
 
@@ -51,10 +55,16 @@ def create_user(username,pwd):
         cursor.execute(ins_query, (str_id,username,key,now,now,str_validity_dt,))
         print ('inserted')
         cnx.commit()
-        os.mkdir('/home/selvaprakash/BillD/users/'+username)
-        os.mkdir('/home/selvaprakash/BillD/users/'+username+'/CSV')
-        os.mkdir('/home/selvaprakash/BillD/users/'+username+'/images')
-        os.mkdir('/home/selvaprakash/BillD/users/'+username+'/html')
+        os.mkdir(USER_HOME+username)
+        os.mkdir(USER_HOME+username+'/CSV')
+        os.mkdir(USER_HOME + username + '/CSV/templates')
+        os.mkdir(USER_HOME + username + '/CSV/results')
+        os.mkdir(USER_HOME+username+'/images')
+        os.mkdir(USER_HOME + username + '/images/processed')
+        os.mkdir(USER_HOME+username+'/html')
+        os.mkdir(USER_HOME+username+'/pdf')
+
+
         return ('uc')
 
 
