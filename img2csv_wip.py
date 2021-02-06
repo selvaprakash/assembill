@@ -42,7 +42,7 @@ def detect_text_uri(path): # User Google API to detect Text in the Image
     print('Texts:')
     print (texts)
     ind=0
-    for text, i in zip(texts, range(1, len(texts))):
+    for text, i in zip(texts, range(1, len(texts)+1)):
 
 		# Send the same to Data Frame to be sent for Processing
     	 df=df.append({'Word_Count':i,'Word':(text.description).strip(),'X2':0,'Y2':0,"X1":(text.bounding_poly.vertices[0].x),"Y1":(text.bounding_poly.vertices[0].y)},ignore_index=True)
@@ -133,6 +133,77 @@ def process_text(df,df_coords,df_fields,user,inp_file):
     print('Done! Done! Done!')
 
 
+
+def process_text_bulk(df,df_coords,df_fields,user,inp_file):
+
+    #df = pd.DataFrame.from_csv("D:\Others\BillDog\Bill_contents.csv", index_col=None)
+    print ('df',df.columns)
+    # if df_coords.empty:
+    #     df_coords = pd.DataFrame(['Column1',0,0,5000,5000], name = ['Field','Start_X','Start_Y','End_X', 'End_Y'])
+
+
+    ####
+    dfy2 = pd.to_numeric(df['Y1'])
+    dfy2 = dfy2.to_frame()
+    dfy2.sort_values('Y1', inplace=True)
+    for i in range(0, len(dfy2)):
+        if abs(dfy2.iloc[i, 0] - dfy2.iloc[i - 1, 0]) <= 10:
+            dfy2.iloc[i, 0] = dfy2.iloc[i - 1, 0]
+            # print df.iloc[i,0]
+    #print 'dfy2', dfy2
+    df['Y1'] = dfy2['Y1']
+    ####
+
+    # df = df.loc[(df['Y1']).astype(int) > min_y]
+    #
+    # df = df.loc[(df['Y1']).astype(int) < max_y].reset_index()
+    #print df
+    df = df[['Word', 'X1', 'Y1', 'X2', 'Y2']]
+    df = df.reset_index().drop(labels='index',axis=1)
+    # df_c = df[['Word', 'X', 'Y']]
+    #print df
+
+    df['X1']=pd.to_numeric(df['X1'])
+    df['X2'] = pd.to_numeric(df['X2'])
+    int_array={}
+    int_df=pd.DataFrame( )
+    #print 'df ', df
+    # df_c = df.groupby('Y1')['Word'].apply(lambda x: "{%s}" % ' '.join(x))
+    # print ('df_c', df_c)
+    # print 'len',len(df_coords)
+    print ('df cords',df_coords)
+    for i in range(len(df_coords)):
+        #if i == 0:
+            df_filter = (df.loc[(df.X1 >= df_coords['Start_X'].iloc[i]) & (df.X2 <= df_coords['End_X'].iloc[i] ) & (df.Y1 >= df_coords['Start_Y'].iloc[i] ) & (df.Y1 <= df_coords['End_Y'].iloc[i] ) ])
+            print ('df_filter 0', df_filter)
+            int_df1 = (df_filter[['Word','Y1']])
+            int_df1 = int_df1.groupby(['Y1'])['Word'].apply(' '.join).reset_index()
+            print ('int df grouped', int_df)
+            #int_df = int_df.merge(int_df1, how='outer', on="Y1", suffixes=('_l_'+str(i),'_r_'+str(i)))
+
+
+            new_words = int_df1["Word"]
+            print ('New Words', new_words)
+            int_df = pd.concat([int_df, new_words], axis=1)
+
+            print ('int df2', int_df)
+        #df_c = df_c.groupby('Y')['Word'].apply(lambda x: "{%s}" % ' '.join(x))
+    #int_df=pd.DataFrame.from_dict(int_array,orient='index')
+    #print df_c
+    print ('int_array final', int_df)
+
+    int_df = int_df.reset_index()
+    int_df_print = int_df.drop(['index'],axis='columns')
+    #int_df_print = int_df.drop(['Word_l_0','Y1','index'],axis='columns')
+    print ('Current Columns',int_df_print.columns)
+
+
+    print ('Printed DF', int_df.reset_index())
+    print ('df printed',int_df_print)
+    int_df_print.columns = df_coords['Field']
+    return (int_df_print)
+
+
 def process_image(inp_img,user):
     inp_img = cv2.imread(inp_img)
     img = cv2.cvtColor(inp_img, cv2.COLOR_BGR2GRAY)
@@ -161,6 +232,32 @@ def main(inp_file,user,template_file):
     #df_coords = (df_coords.loc[(df_coords.Field != 'maxxy')])
     print ('df1',df1)
     process_text(df1,df_coords[['Field','Start_X','End_X','Start_Y','End_Y']],df_coords.iloc[:,0],user,inp_file)
+
+
+def main_bulk(imglist,user,template_file):
+
+    df = pd.DataFrame( columns=["Word","X","Y"])
+    final_df =pd.DataFrame()
+
+
+    #df.to_csv(pd.DataFrame.to_csv(df, USER_FOLDER + user + '/' + 'CSV/templates/' + template_name + '.csv'))
+    df_coords=pd.read_csv(template_file)
+    print ('target ', df_coords[['Field','Start_X','End_X','Start_Y']])
+
+
+
+    for img in imglist:
+        print ('inp_file',img)
+        proc_img = process_image(img,user)
+        df1=detect_text_uri(proc_img)
+
+        ret_df = process_text_bulk(df1,df_coords[['Field','Start_X','End_X','Start_Y','End_Y']],df_coords.iloc[:,0],user,img)
+        final_df = final_df.append (ret_df)
+    # final_df = final_df.reset_index()
+    # final_df.columns = df_coords['Field']
+    print ('Final DF',final_df)
+    return final_df
+
 
 def detect_text_api(path): # User Google API to detect Text in the Image
     """Detects text in the file located in Google Cloud Storage or on the Web.

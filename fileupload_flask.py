@@ -160,6 +160,34 @@ def upload_scrfile():
     return render_template('scr_fileupload.html')
     #return 'You are not logged in'
 
+
+
+@application.route('/bulk', methods=['GET', 'POST'])
+def upload_scrmulti():
+    if request.method == 'POST':
+
+        user = 'apiuser'
+        images = request.files.getlist("images")
+        template = request.files["template"]
+        print (template.filename)
+        template.save(os.path.join(USER_FOLDER+user+'/CSV/templates/', template.filename))
+        template_file = USER_FOLDER + user + '/' + 'CSV/templates/' + template.filename
+        up_file_list=[]
+        for image in images:
+            print (image.filename)
+            image.save(os.path.join(USER_FOLDER+user+'/images/', image.filename))
+            up_file_list.append(USER_FOLDER+user+'/images/'+ image.filename)
+        print ('Img List',up_file_list)
+
+        final_df = img2csv_wip.main_bulk( up_file_list,user,template_file)
+        final_df.to_csv(USER_FOLDER+user+'/CSV/results/consolidated1.csv',index = False)
+
+        return send_file(USER_FOLDER+user+'/CSV/results/consolidated1.csv',as_attachment=True)
+
+    return render_template('bulkup.html')
+
+
+
 @application.route('/imgsam', methods=['GET', 'POST'])
 def upload_scrfile_api():
     #print(request.args['user'])
@@ -198,6 +226,14 @@ def upload_scrfile_api():
     #if 'username' in session:
     return render_template('scr_fileupload.html')
     #return 'You are not logged in'
+
+@application.route('/blog_grid')
+def blog_grid():
+    return render_template('blog_grid.html')
+
+@application.route('/blog/blog_www')
+def blog_detail():
+    return render_template('blog_www.html')
 
 @application.route('/scr_config1')
 def config_screen_start():
