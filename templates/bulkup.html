@@ -2,7 +2,7 @@
 <html>
 <head>
 	            <!-- Google Analytics -->
-        <!-- Global site tag (gtag.js) - Google Ads: 592033816 --> <script async src="https://www.googletagmanager.com/gtag/js?id=AW-592033816"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'AW-592033816'); </script> 
+        <!-- Global site tag (gtag.js) - Google Ads: 592033816 --> <script async src="https://www.googletagmanager.com/gtag/js?id=AW-592033816"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'AW-592033816'); </script>
 	<!-- End Google Analytics -->
 	<!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-XN37S2DP7K"></script>
@@ -81,13 +81,13 @@ input {
     <h1 style="font-family:Trebuchet MS;"><center>Assembill.com</center></h1>
     <!--<center><a href="https://youtu.be/W9u1jmSeuag" target="_blank">Demo Video</a></center>-->
     <p></p>
-    <center><form method=post enctype=multipart/form-data>
-	<button id="upload_button">Browse Image</button>
-    <input id="file-input" type="file" name=screen_img_file >
+	<center><form method=post enctype=multipart/form-data>
+		<p>Image Files&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Template File</p>
+    <input id="file-input" type="file" name="images" multiple>
+    <input id="template" type="file" name="template">
     <script>
-		var button = document.getElementById('upload_button');
-		var input  = document.getElementById('file-input');
-
+		var input  = document.getElementById('file-input').multiple;
+        var template  = document.getElementById('template');
 		// Making input invisible, but leaving shown fo graceful degradation
 		input.style.display = 'none';
 		button.style.display = 'initial';
@@ -106,11 +106,12 @@ input {
 		);
 	</script>
 	</div>
+	<br><br><br>
 
          <input type=submit value=Upload >
     </center>
 <p></p>
-    <p align="center"> <iframe width="560" height="315" src="https://www.youtube.com/embed/W9u1jmSeuag" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></p>
+    <!-- <p align="center"> <iframe width="560" height="315" src="https://www.youtube.com/embed/W9u1jmSeuag" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></p> -->
 
 
 
